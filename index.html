@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD Categorías Autos</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 50px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2a5298;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn-primary {
+      background: #2a5298;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1e3c72;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #f8f9fa;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .acciones button {
+      margin-left: 5px;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #e0a800;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <h2>🚗 CRUD Categorías de Autos</h2>
+
+    <!-- CREATE -->
+    <div class="input-group">
+      <input id="descripcion" type="text" placeholder="Nueva categoría">
+      <button class="btn-primary" onclick="crearCategoria()">Crear</button>
+    </div>
+
+    <button class="btn-success" onclick="obtenerCategorias()">🔄 Ver categorías</button>
+
+    <!-- LIST -->
+    <ul id="lista"></ul>
+
+  </div>
+</div>
+
+<script>
+  const API = "https://backendjs-gvd1.onrender.com/categorias";
+
+  async function obtenerCategorias() {
+    const res = await fetch(API);
+    const data = await res.json();
+
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    data.forEach(cat => {
+      lista.innerHTML += `
+        <li>
+          🚘 ${cat.descripcion}
+          <div class="acciones">
+            <button class="btn-warning" onclick="editar(${cat.id_categoria})">✏</button>
+            <button class="btn-danger" onclick="eliminar(${cat.id_categoria})">🗑</button>
+          </div>
+        </li>
+      `;
+    });
+  }
+
+  async function crearCategoria() {
+    const descripcion = document.getElementById("descripcion").value;
+
+    if (!descripcion) return alert("Escribe una categoría");
+
+    await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ descripcion })
+    });
+
+    document.getElementById("descripcion").value = "";
+    obtenerCategorias();
+  }
+
+  async function eliminar(id) {
+    await fetch(`${API}/${id}`, { method: "DELETE" });
+    obtenerCategorias();
+  }
+
+  async function editar(id) {
+    const nueva = prompt("Nueva descripción:");
+    if (!nueva) return;
+
+    await fetch(`${API}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ descripcion: nueva })
+    });
+
+    obtenerCategorias();
+  }
+</script>
+
+</body>
+</html>
